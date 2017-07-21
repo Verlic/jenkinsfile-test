@@ -1,35 +1,31 @@
 pipeline {
-    agent any
-    tools { nodejs 'node-v6.10.3' }
-    parameters {
-        string(name: 'REGION', defaultValue: 'us-west-1', description: 'The region to deploy')
-    }
-    stages {
-        stage('deploy-us') {
-            when {
-                expression { return params.REGION == 'us-west-1' }
-            }
-            steps {
-                echo "${REGION}"
-            }
+  agent any
+  stages {
+    stage('deploy-us') {
+      when {
+        expression {
+          return params.REGION == 'us-west-1'
         }
         
-        stage('deploy-eu') {
-            when {
-                expression { return params.REGION == 'eu-central-1' }
-            }
-            steps {
-                echo "${REGION}"
-            }
-        }
-        
-        stage('deploy-au') {
-            when {
-                expression { return params.REGION == 'ap-southeast-2' }
-            }
-            steps {
-                echo "${REGION}"
-            }
-        }
+      }
+      steps {
+        parallel(
+          "deploy-us": {
+            echo '"${REGION}"'
+            
+          },
+          "deploy-region": {
+            echo 'hello world'
+            
+          }
+        )
+      }
     }
+  }
+  tools {
+    nodejs 'node-v6.10.3'
+  }
+  parameters {
+    string(name: 'REGION', defaultValue: 'us-west-1', description: 'The region to deploy')
+  }
 }
